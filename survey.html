@@ -15,39 +15,67 @@
     const frame = document.getElementById('surveyFrame');
     frame.src = '/index.html' + window.location.search;
 
+    function removeAllSelectionLimits(doc) {
+      if (!doc) return;
+
+      // Marca todos os grupos que antigamente tinham limite.
+      doc.querySelectorAll('.max3,.max5,.max7').forEach(container => {
+        container.dataset.unlimited = 'true';
+        container.classList.remove('max3','max5','max7');
+      });
+
+      // Remove qualquer texto visual relacionado com limites.
+      doc.querySelectorAll('.hint').forEach(el => {
+        if (/máximo|no máximo|até\s+[357]/i.test(el.textContent || '')) el.remove();
+      });
+
+      doc.querySelectorAll('.qlabel').forEach(el => {
+        const text = el.textContent || '';
+        if (/escolhe agora.*3.*funcionalidades/i.test(text)) {
+          el.textContent = 'Quais destas funcionalidades consideras essenciais?';
+        }
+      });
+
+      // Clona checkboxes dos grupos antigos para eliminar listeners já adicionados.
+      doc.querySelectorAll('[data-unlimited="true"] input[type="checkbox"]').forEach(input => {
+        if (input.dataset.cleaned === 'true') return;
+        const clone = input.cloneNode(true);
+        clone.checked = input.checked;
+        clone.dataset.cleaned = 'true';
+        input.replaceWith(clone);
+      });
+
+      // Links de privacidade abrem na janela principal.
+      doc.querySelectorAll('a[href="privacy.html"]').forEach(a => a.target = '_top');
+    }
+
     frame.addEventListener('load', () => {
       try {
         const doc = frame.contentDocument;
         if (!doc) return;
 
-        // Remove os limites de seleção que existiam nas perguntas de checkbox.
-        ['max3','max5','max7'].forEach(cls => {
-          doc.querySelectorAll('.' + cls).forEach(container => {
-            container.querySelectorAll('input[type="checkbox"]').forEach(input => {
-              const clone = input.cloneNode(true);
-              clone.checked = input.checked;
-              input.replaceWith(clone);
-            });
-            container.classList.remove(cls);
-          });
-        });
+        // Corre imediatamente e repete durante alguns segundos para apanhar
+        // qualquer conteúdo/listener criado pelo JavaScript do questionário.
+        removeAllSelectionLimits(doc);
+        let runs = 0;
+        const timer = setInterval(() => {
+          removeAllSelectionLimits(doc);
+          runs++;
+          if (runs >= 15) clearInterval(timer);
+        }, 200);
 
-        // Remove avisos do tipo "Seleciona no máximo X".
-        doc.querySelectorAll('.hint').forEach(el => {
-          if (/seleciona no máximo/i.test(el.textContent || '')) el.remove();
-        });
-
-        // A pergunta que antes pedia exatamente três passa a aceitar todas as opções relevantes.
-        doc.querySelectorAll('.qlabel').forEach(el => {
-          if (/escolhe agora as 3/i.test(el.textContent || '')) {
-            el.textContent = 'Quais destas funcionalidades consideras mais importantes?';
+        // Captura mudanças antes dos listeners antigos e impede que qualquer
+        // lógica de limite volte a desmarcar opções.
+        doc.addEventListener('change', event => {
+          const target = event.target;
+          if (target instanceof frame.contentWindow.HTMLInputElement &&
+              target.type === 'checkbox' &&
+              target.closest('[data-unlimited="true"]')) {
+            event.stopImmediatePropagation();
           }
-        });
-
-        // Links institucionais abrem fora do iframe.
-        doc.querySelectorAll('a[href="privacy.html"]').forEach(a => a.target = '_top');
+        }, true);
       } catch (e) {
-        console.error('Não foi possível aplicar as opções sem limite:', e);
+        console.error('Não foi possível remover os limites:', e);
       }
     });
   </script>
