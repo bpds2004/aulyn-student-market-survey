@@ -4,10 +4,10 @@ Questionário independente para validar necessidades reais de estudantes do ensi
 
 ## Estrutura
 
-- `index.html` — questionário público
+- `survey.html` — questionário público standalone
 - `privacy.html` — informação de privacidade
 - `dashboard.html` — dashboard privado; pede uma admin key em runtime
-- `vercel.json` — headers de segurança e configuração para Vercel
+- `vercel.json` — redirect de `/` para `/survey.html`, headers de segurança e cache
 
 ## Backend
 
@@ -25,10 +25,10 @@ O dashboard usa uma segunda Edge Function protegida por uma chave que **não est
 2. Importa o repositório `bpds2004/aulyn-student-market-survey` a partir do GitHub.
 3. Framework Preset: **Other**.
 4. Root Directory: `./`.
-5. Não é necessário Build Command para este projeto estático.
+5. Não é necessário Build Command.
 6. Faz **Deploy**.
 
-O questionário ficará em `/` e o dashboard em `/dashboard.html`.
+A rota `/` redireciona para `/survey.html`. O dashboard fica em `/dashboard.html`.
 
 ## Tracking da origem
 
@@ -47,5 +47,6 @@ A origem fica guardada na resposta para comparar canais.
 - O formulário não contém uma service-role key.
 - A Edge Function pública faz a inserção server-side.
 - O dashboard não contém a admin key no código.
-- A rota `/dashboard.html` recebe headers `noindex` e `no-store` via Vercel.
+- O dashboard recebe headers `noindex` e `no-store` via Vercel.
+- `survey.html` e o dashboard usam `no-store` para evitar servir versões antigas em cache.
 - Não comites a admin key no GitHub.
