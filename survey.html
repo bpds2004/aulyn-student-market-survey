@@ -1,48 +1,80 @@
 <!doctype html>
 <html lang="pt-PT">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Estudo sobre organização e hábitos de estudo</title>
-  <style>
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f6f7fb}
-    iframe{display:block;width:100%;height:100%;border:0;background:#f6f7fb}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Estudo independente sobre organização e hábitos de estudo no ensino superior.">
+<title>Estudo sobre organização e hábitos de estudo</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#17181c;--muted:#686d78;--border:#e1e4ea;--accent:#5b5bd6;--soft:#eeeeff;--danger:#b42318}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.wrap{max-width:880px;margin:auto;padding:22px 16px 80px}.progress{position:sticky;top:0;z-index:9;background:rgba(246,247,251,.94);padding:8px 0;backdrop-filter:blur(8px)}.bar{height:7px;background:#e5e7eb;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--accent);width:0;transition:.2s}.eyebrow,.hint,.small{color:var(--muted);font-size:13px}h1{font-size:clamp(29px,5vw,43px);line-height:1.08;margin:8px 0 12px}.lead{color:var(--muted);font-size:17px;line-height:1.55}.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;margin:14px 0;box-shadow:0 6px 22px rgba(0,0,0,.035)}.q{margin:23px 0}.q>label:first-child,.qlabel{font-weight:700;display:block;margin-bottom:10px;line-height:1.4}.opts{display:grid;gap:8px}.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:11px;padding:11px 12px;background:#fff;cursor:pointer}.opt:hover{border-color:#babfcb}input[type=radio],input[type=checkbox]{margin-top:3px;accent-color:var(--accent)}input[type=text],select,textarea{width:100%;border:1px solid var(--border);border-radius:11px;padding:12px;font:inherit;background:#fff;color:var(--text)}textarea{min-height:110px;resize:vertical}.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.scale .opt{justify-content:center}.scaleLabels{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:5px}.concept{background:var(--soft);border:1px solid #d9d9ff;border-radius:14px;padding:17px;line-height:1.58}.actions{display:flex;justify-content:space-between;gap:12px;margin-top:24px}button{border:0;border-radius:12px;padding:13px 18px;font:inherit;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:white}.secondary{background:#eceef3}.hidden{display:none!important}.error{color:var(--danger);font-size:13px;margin-top:8px}.success{text-align:center;padding:55px 18px}.hp{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}footer{text-align:center;margin-top:24px;font-size:12px}footer a{color:var(--muted)}@media(max-width:600px){.card{padding:17px}.scale{gap:4px}.scale .opt{padding:10px 4px}}
+</style>
 </head>
 <body>
-  <iframe id="surveyFrame" title="Questionário sobre organização e hábitos de estudo"></iframe>
-  <script>
-    const frame = document.getElementById('surveyFrame');
-
-    async function loadSurvey(){
-      const res = await fetch('/index.html?nocache=' + Date.now(), { cache: 'no-store' });
-      let html = await res.text();
-
-      // Remove definitivamente a lógica de limites ANTES de o JS original ser executado.
-      html = html.replace(
-        /function checks\(id,name,title,opts,max=0\)\{[\s\S]*?\}\nfunction scale/,
-        `function checks(id,name,title,opts){document.getElementById(id).innerHTML='<div class="q"><span class="qlabel">'+title+'</span><div class="opts">'+opts.map(x=>'<label class="opt"><input type="checkbox" name="'+name+'" value="'+esc(x)+'"><span>'+esc(x)+'</span></label>').join('')+'</div></div>'}\nfunction scale`
-      );
-
-      // Retira a linguagem de limite da pergunta das funcionalidades essenciais.
-      html = html.replace(
-        'Escolhe agora até 3 funcionalidades que consideras essenciais.',
-        'Quais destas funcionalidades consideras essenciais?'
-      );
-
-      // Preserva tracking ?src= / utm_source quando a página corre dentro de srcdoc.
-      html = html.replace(
-        'new URLSearchParams(location.search)',
-        'new URLSearchParams(parent.location.search)'
-      );
-
-      frame.srcdoc = html;
-    }
-
-    loadSurvey().catch(err => {
-      console.error(err);
-      document.body.innerHTML = '<p style="font-family:system-ui;padding:24px">Não foi possível carregar o questionário. Atualiza a página e tenta novamente.</p>';
-    });
-  </script>
+<div class="wrap">
+<div class="progress"><div class="bar"><i id="pbar"></i></div></div>
+<header><div class="eyebrow">Investigação independente · Ensino superior</div><h1>Como estudam e se organizam os estudantes?</h1><p class="lead">Queremos compreender hábitos, dificuldades e ferramentas usadas por estudantes do ensino superior. As respostas são anónimas e serão analisadas de forma agregada.</p></header>
+<form id="survey">
+<div class="hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+<section class="card page" data-page="1"><h2>1. Perfil académico</h2><p class="small">Duração aproximada: 6–8 minutos. Não pedimos nome, email ou número de estudante.</p><div class="q"><label class="opt"><input required type="checkbox" name="consent" value="yes"><span>Aceito participar voluntariamente e compreendo que as respostas serão usadas para investigação de mercado e desenvolvimento de produto.</span></label></div><div class="q"><label>Em que país estudas?</label><input required name="country" type="text" placeholder="Ex.: Portugal"></div><div id="institution"></div><div id="level"></div><div class="q"><label>Área principal de estudos</label><select required name="study_area"><option value="">Seleciona…</option><option>Engenharia e Tecnologia</option><option>Ciências</option><option>Saúde</option><option>Economia e Gestão</option><option>Ciências Sociais</option><option>Direito</option><option>Educação</option><option>Artes e Humanidades</option><option>Outra</option></select></div><div class="q"><label>Ano atual do curso</label><select required name="study_year"><option value="">Seleciona…</option><option>1.º</option><option>2.º</option><option>3.º</option><option>4.º</option><option>5.º ou superior</option><option>Não se aplica</option></select></div><div class="actions"><span></span><button class="primary next" type="button">Continuar</button></div></section>
+<section class="card page hidden" data-page="2"><h2>2. Como te organizas atualmente</h2><div id="tools"></div><div class="q"><label>Qual é atualmente a aplicação ou ferramenta mais importante para os teus estudos?</label><input name="most_important_tool" type="text" placeholder="Ex.: Google Calendar, papel, ChatGPT…"></div><div id="toolcount"></div><div id="fragmentation"></div><div id="setupSatisfaction"></div><div class="actions"><button class="secondary prev" type="button">Voltar</button><button class="primary next" type="button">Continuar</button></div></section>
+<section class="card page hidden" data-page="3"><h2>3. Dificuldades reais</h2><div id="difficulties"></div><div class="q"><label>Se pudesses resolver apenas UM problema relacionado com a tua vida académica, qual seria?</label><textarea required name="one_problem" placeholder="Resposta livre"></textarea></div><div id="examplanning"></div><div id="planningdiff"></div><div id="latestart"></div><div class="actions"><button class="secondary prev" type="button">Voltar</button><button class="primary next" type="button">Continuar</button></div></section>
+<section class="card page hidden" data-page="4"><h2>4. Inteligência artificial</h2><div id="aifrequency"></div><div id="aiuses"></div><div id="ailimits"></div><div class="actions"><button class="secondary prev" type="button">Voltar</button><button class="primary next" type="button">Continuar</button></div></section>
+<section class="card page hidden" data-page="5"><h2>5. O que teria valor para ti?</h2><div id="features"></div><div id="essentialFeatures"></div><div class="actions"><button class="secondary prev" type="button">Voltar</button><button class="primary next" type="button">Continuar</button></div></section>
+<section class="card page hidden" data-page="6"><h2>6. Avaliação de um conceito</h2><div class="concept">Imagina uma aplicação para <b>telemóvel, tablet e computador</b> criada especificamente para estudantes. Centralizaria cadeiras, horário, calendário, tarefas, avaliações, classificações, materiais, apontamentos e sessões de estudo.<br><br>Na preparação de uma avaliação, o estudante indicaria a data e a matéria. A aplicação poderia analisar os conteúdos selecionados, avaliar aquilo que o estudante já sabe, considerar o tempo disponível e criar um plano de estudo. À medida que são feitos exercícios, quizzes ou revisões, esse plano poderia adaptar-se às dificuldades encontradas.</div><div id="conceptUse"></div><div id="conceptInterest"></div><div id="semesterLikely"></div><div id="replaceTools"></div><div id="integrated"></div><div id="mainValue"></div><div class="actions"><button class="secondary prev" type="button">Voltar</button><button class="primary next" type="button">Continuar</button></div></section>
+<section class="card page hidden" data-page="7"><h2>7. Preparação inteligente para avaliações</h2><div class="concept">Imagina que tens um teste daqui a <b>14 dias</b>. A aplicação conhece a matéria que pode sair, os teus materiais, aquilo que já sabes e o tempo que tens disponível. Cria um plano diário e vai ajustando esse plano com base nos resultados das tuas sessões de estudo.</div><div id="examPrep"></div><div id="aiTrust"></div><div class="concept">Agora imagina que tens apenas <b>40 minutos livres</b>. A aplicação analisa testes, trabalhos, prazos e progresso e recomenda o que seria mais útil fazer durante esses 40 minutos.</div><div id="studyNow"></div><div class="actions"><button class="secondary prev" type="button">Voltar</button><button class="primary next" type="button">Continuar</button></div></section>
+<section class="card page hidden" data-page="8"><h2>8. Adoção, dispositivos e preço</h2><div id="barriers"></div><div id="adoption"></div><div id="devices"></div><div id="pricing"></div><div id="maxprice"></div><div class="q"><label>Se pudesses criar a aplicação ideal para te ajudar durante a universidade, o que teria obrigatoriamente de fazer?</label><textarea required name="ideal_app" placeholder="Resposta livre"></textarea></div><div class="actions"><button class="secondary prev" type="button">Voltar</button><button class="primary" id="submitBtn" type="submit">Enviar resposta</button></div><div id="submitError" class="error"></div></section>
+</form>
+<section id="success" class="card success hidden"><h2>Obrigado! 🎓</h2><p>A tua resposta foi registada com sucesso.</p><p class="small">Obrigado por ajudares a compreender melhor as necessidades reais dos estudantes.</p></section>
+<footer><a href="privacy.html">Privacidade e utilização dos dados</a></footer>
+</div>
+<script>
+const ENDPOINT='https://niymlnyfoxjbhijpmpag.supabase.co/functions/v1/submit-student-market-survey';
+const DATA={
+ tools:['Papel/caderno','Calendário do telemóvel','Google Calendar','Notion','Todoist','TickTick','MyStudyLife','OneNote','Goodnotes','Obsidian','Anki','Quizlet','RemNote','Forest','Zotero','ChatGPT/outra IA','Moodle/plataforma da instituição','Notas do telemóvel','Excel/Google Sheets','Nenhuma','Outra'],
+ difficulties:['Lembrar prazos','Organizar tarefas','Saber por onde começar','Gerir várias cadeiras','Organizar o horário','Encontrar tempo para estudar','Procrastinação','Manter concentração','Começar a estudar com antecedência','Saber exatamente o que estudar','Dividir a matéria pelos dias disponíveis','Perceber se domino a matéria','Rever matéria sem esquecer','Organizar apontamentos','Encontrar materiais antigos','Gerir PDFs/slides/documentos','Preparar projetos grandes','Trabalhos de grupo','Acompanhar classificações','Calcular a nota necessária numa avaliação','Organizar referências/bibliografia','Excesso de aplicações/ferramentas','Nenhuma','Outra'],
+ features:['Horário','Calendário','Tarefas e deadlines','Lembretes','Notas/classificações','Calculadora de média','Apontamentos','Materiais','Leitor/anotação de PDFs','Flashcards','Repetição espaçada','Quizzes','Pomodoro/focus timer','Planeamento automático do estudo','Identificação de matérias em dificuldade','Acompanhamento do domínio da matéria','IA baseada nos materiais das cadeiras','Preparação automática para testes','Exames simulados','Divisão automática de projetos/trabalhos','Importação automática de horário','Importação de ficha/syllabus','Integração Moodle','Trabalhos de grupo','Analytics de estudo','Pesquisa em todos os materiais','Outra']
+};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function radio(id,name,title,opts,required=true){document.getElementById(id).innerHTML=`<div class="q"><span class="qlabel">${title}</span><div class="opts">${opts.map((x,i)=>`<label class="opt"><input ${required&&i===0?'required ':''}type="radio" name="${name}" value="${esc(x)}"><span>${esc(x)}</span></label>`).join('')}</div></div>`}
+function checks(id,name,title,opts){document.getElementById(id).innerHTML=`<div class="q"><span class="qlabel">${title}</span><div class="opts">${opts.map(x=>`<label class="opt"><input type="checkbox" name="${name}" value="${esc(x)}"><span>${esc(x)}</span></label>`).join('')}</div></div>`}
+function scale(id,name,title,lo,hi){document.getElementById(id).innerHTML=`<div class="q"><span class="qlabel">${title}</span><div class="scale">${[1,2,3,4,5].map((x,i)=>`<label class="opt"><input ${i===0?'required ':''}type="radio" name="${name}" value="${x}">${x}</label>`).join('')}</div><div class="scaleLabels"><span>${lo}</span><span>${hi}</span></div></div>`}
+radio('institution','institution_type','Tipo de instituição',['Universidade','Instituto Politécnico','Outro']);
+radio('level','study_level','Nível atual de estudos',['Licenciatura','Mestrado','Doutoramento','Outro']);
+checks('tools','current_tools','Que ferramentas utilizas atualmente para organizar ou apoiar os teus estudos?',DATA.tools);
+radio('toolcount','tool_count','Quantas aplicações ou ferramentas diferentes utilizas numa semana normal para gerir os estudos?',['0','1','2','3','4','5 ou mais']);
+scale('fragmentation','fragmentation_problem','Ter informação académica distribuída por várias aplicações é um problema para ti?','Não é problema','Problema muito grande');
+scale('setupSatisfaction','current_setup_satisfaction','Quão satisfeito estás com a forma como te organizas atualmente?','Nada satisfeito','Muito satisfeito');
+checks('difficulties','difficulties','Quais são atualmente as tuas maiores dificuldades enquanto estudante?',DATA.difficulties);
+radio('examplanning','exam_planning_current','Quando tens um teste/exame daqui a vários dias ou semanas, como decides o que estudar em cada dia?',['Faço um plano detalhado','Faço um plano aproximado','Sigo a ordem das aulas/matéria','Começo pelas matérias mais difíceis','Decido no próprio dia','Normalmente começo perto da avaliação','Uso IA para criar um plano','Outra']);
+scale('planningdiff','planning_difficulty','Quão difícil é criares e cumprires um plano de estudo realista até uma avaliação?','Muito fácil','Muito difícil');
+radio('latestart','late_start_frequency','Com que frequência começas a estudar mais tarde do que gostarias?',['Nunca','Raramente','Às vezes','Frequentemente','Quase sempre']);
+radio('aifrequency','ai_frequency','Com que frequência utilizas IA para estudar?',['Frequentemente','Ocasionalmente','Raramente','Nunca']);
+checks('aiuses','ai_uses','Para que utilizas ou utilizarias IA nos estudos?',['Explicar matéria','Resumir conteúdos','Criar apontamentos','Criar flashcards','Criar quizzes','Resolver exercícios','Corrigir respostas','Criar planos de estudo','Tirar dúvidas','Pesquisar informação','Ajudar em trabalhos','Não usaria','Outra']);
+checks('ailimits','ai_limits','Quais são para ti as maiores limitações ou riscos da IA no estudo?',['Respostas erradas','Informação inventada','Não conhecer a matéria específica da cadeira','Não saber o que o professor considera importante','Dar a solução demasiado rapidamente','Dificuldade em verificar fontes','Ter de fornecer materiais repetidamente','Preço','Privacidade','Dependência excessiva','Nenhuma','Outra']);
+checks('features','desired_features','Se existisse uma aplicação feita especificamente para estudantes universitários, quais funcionalidades seriam mais importantes para ti?',DATA.features);
+checks('essentialFeatures','top3_features','Quais destas funcionalidades consideras essenciais?',['Horário/calendário','Tarefas e deadlines','Apontamentos/materiais','Notas e média','Flashcards/quizzes','Focus/Pomodoro','Planeamento automático do estudo','Deteção de dificuldades/mastery','IA baseada nos meus materiais','Preparação automática para testes','Mock exams','Projetos/trabalhos','Integração Moodle','Pesquisa global']);
+scale('conceptUse','concept_usefulness','Quão útil seria uma aplicação deste género para ti?','Nada útil','Muito útil');
+scale('conceptInterest','concept_interest','Qual seria o teu interesse em experimentá-la?','Nenhum','Muito elevado');
+scale('semesterLikely','semester_likelihood','Se fosse gratuita, quão provável seria utilizá-la durante um semestre?','Nada provável','Muito provável');
+radio('replaceTools','replace_tools','Poderia substituir algumas das ferramentas que utilizas atualmente?',['Sim, provavelmente a maioria','Sim, algumas','Talvez','Provavelmente não','Não']);
+radio('integrated','integrated_vs_specialized','Qual abordagem preferes?',['Uma aplicação integrada que faça a maior parte destas coisas','Algumas funcionalidades integradas e outras em apps especializadas','Várias aplicações especializadas separadas','Não tenho preferência']);
+radio('mainValue','main_value','Qual destas capacidades teria MAIS valor para ti?',['Ter a organização académica num único local','Saber diariamente o que devo fazer','Planos automáticos para testes/exames','Descobrir matérias em que tenho dificuldades','Estudar através de quizzes/flashcards/exercícios','IA que conhece os meus materiais','Gerir tarefas e trabalhos','Acompanhar notas e progresso','Outra']);
+scale('examPrep','exam_prep_usefulness','Quão útil seria especificamente esta funcionalidade?','Nada útil','Muito útil');
+checks('aiTrust','ai_trust','O que precisarias para confiar num sistema destes?',['Mostrar as fontes utilizadas','Usar apenas os meus materiais quando pedido','Permitir corrigir a matéria considerada','Permitir editar o plano','Explicar por que recomenda um tópico','Mostrar como calcula o progresso','Admitir quando não sabe','Permitir desligar IA','Garantir privacidade dos documentos','Não confiaria','Outra']);
+scale('studyNow','study_now_usefulness','Quão útil seria esta funcionalidade “Study Now”?','Nada útil','Muito útil');
+checks('barriers','barriers','O que poderia impedir-te de utilizar uma aplicação deste género?',['Já estou satisfeito com as aplicações que uso','Configuração inicial demasiado demorada','Ter de introduzir as cadeiras manualmente','Demasiadas funcionalidades','Preocupações com privacidade','Não confiar na IA','Receio de depender demasiado da IA','Preço','Prefiro papel','Não vejo necessidade','Outra']);
+checks('adoption','adoption_helpers','O que aumentaria a probabilidade de começares realmente a utilizá-la?',['Login Google','Fotografar o horário e importar automaticamente','Importar horário por PDF','Importar automaticamente cadeiras','Integração Moodle/universidade','Importar calendário','Importar apontamentos existentes','Importar flashcards','Começar sem grande configuração','Tutorial inicial','Outra']);
+checks('devices','devices','Em que dispositivos gostarias de a utilizar?',['Android','iPhone','Tablet Android','iPad','Windows','macOS','Browser/Web']);
+radio('pricing','pricing_model','Qual modelo de preço preferirias?',['Completamente gratuita','Gratuita com funcionalidades premium opcionais','Compra única','Subscrição mensal','Subscrição anual','Não pagaria']);
+radio('maxprice','max_monthly_price','Se aceitasses pagar por funcionalidades premium, qual seria o valor mensal mais elevado que considerarias razoável?',['Menos de 1 €','1–1,99 €','2–2,99 €','3–3,99 €','4–5,99 €','6–9,99 €','10 € ou mais','Não pagaria / não se aplica'],false);
+const started=Date.now(),pages=[...document.querySelectorAll('.page')],pbar=document.getElementById('pbar');let page=1;
+function update(){pages.forEach(x=>x.classList.toggle('hidden',+x.dataset.page!==page));pbar.style.width=((page-1)/(pages.length-1)*100)+'%';scrollTo({top:0,behavior:'smooth'})}
+function valid(){const cur=document.querySelector(`.page[data-page="${page}"]`);for(const el of cur.querySelectorAll('[required]')){if(el.type==='radio'){if(!cur.querySelector(`[name="${CSS.escape(el.name)}"]:checked`)){el.reportValidity();return false}}else if(!el.checkValidity()){el.reportValidity();return false}}return true}
+document.querySelectorAll('.next').forEach(b=>b.onclick=()=>{if(valid()){page++;update()}});
+document.querySelectorAll('.prev').forEach(b=>b.onclick=()=>{page--;update()});
+function collect(){const fd=new FormData(document.getElementById('survey')),o={};for(const[k,v]of fd.entries()){if(k==='consent'||k==='website')continue;if(o[k]!==undefined){if(!Array.isArray(o[k]))o[k]=[o[k]];o[k].push(v)}else o[k]=v}const p=new URLSearchParams(location.search);o.distribution_source=p.get('src')||p.get('utm_source')||'direct';o.utm_campaign=p.get('utm_campaign')||null;return o}
+document.getElementById('survey').addEventListener('submit',async e=>{e.preventDefault();if(!valid())return;const btn=document.getElementById('submitBtn'),err=document.getElementById('submitError');btn.disabled=true;btn.textContent='A enviar…';err.textContent='';try{const r=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({consent:true,website:document.querySelector('[name="website"]').value,survey_version:'v3',completion_seconds:Math.round((Date.now()-started)/1000),answers:collect()})});if(!r.ok)throw new Error(await r.text());document.getElementById('survey').classList.add('hidden');document.querySelector('header').classList.add('hidden');document.querySelector('.progress').classList.add('hidden');document.getElementById('success').classList.remove('hidden');scrollTo({top:0,behavior:'smooth'})}catch(_){err.textContent='Não foi possível enviar a resposta. Verifica a ligação à internet e tenta novamente.';btn.disabled=false;btn.textContent='Enviar resposta'}});
+update();
+</script>
 </body>
 </html>
