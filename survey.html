@@ -13,70 +13,35 @@
   <iframe id="surveyFrame" title="Questionário sobre organização e hábitos de estudo"></iframe>
   <script>
     const frame = document.getElementById('surveyFrame');
-    frame.src = '/index.html' + window.location.search;
 
-    function removeAllSelectionLimits(doc) {
-      if (!doc) return;
+    async function loadSurvey(){
+      const res = await fetch('/index.html?nocache=' + Date.now(), { cache: 'no-store' });
+      let html = await res.text();
 
-      // Marca todos os grupos que antigamente tinham limite.
-      doc.querySelectorAll('.max3,.max5,.max7').forEach(container => {
-        container.dataset.unlimited = 'true';
-        container.classList.remove('max3','max5','max7');
-      });
+      // Remove definitivamente a lógica de limites ANTES de o JS original ser executado.
+      html = html.replace(
+        /function checks\(id,name,title,opts,max=0\)\{[\s\S]*?\}\nfunction scale/,
+        `function checks(id,name,title,opts){document.getElementById(id).innerHTML='<div class="q"><span class="qlabel">'+title+'</span><div class="opts">'+opts.map(x=>'<label class="opt"><input type="checkbox" name="'+name+'" value="'+esc(x)+'"><span>'+esc(x)+'</span></label>').join('')+'</div></div>'}\nfunction scale`
+      );
 
-      // Remove qualquer texto visual relacionado com limites.
-      doc.querySelectorAll('.hint').forEach(el => {
-        if (/máximo|no máximo|até\s+[357]/i.test(el.textContent || '')) el.remove();
-      });
+      // Retira a linguagem de limite da pergunta das funcionalidades essenciais.
+      html = html.replace(
+        'Escolhe agora até 3 funcionalidades que consideras essenciais.',
+        'Quais destas funcionalidades consideras essenciais?'
+      );
 
-      doc.querySelectorAll('.qlabel').forEach(el => {
-        const text = el.textContent || '';
-        if (/escolhe agora.*3.*funcionalidades/i.test(text)) {
-          el.textContent = 'Quais destas funcionalidades consideras essenciais?';
-        }
-      });
+      // Preserva tracking ?src= / utm_source quando a página corre dentro de srcdoc.
+      html = html.replace(
+        'new URLSearchParams(location.search)',
+        'new URLSearchParams(parent.location.search)'
+      );
 
-      // Clona checkboxes dos grupos antigos para eliminar listeners já adicionados.
-      doc.querySelectorAll('[data-unlimited="true"] input[type="checkbox"]').forEach(input => {
-        if (input.dataset.cleaned === 'true') return;
-        const clone = input.cloneNode(true);
-        clone.checked = input.checked;
-        clone.dataset.cleaned = 'true';
-        input.replaceWith(clone);
-      });
-
-      // Links de privacidade abrem na janela principal.
-      doc.querySelectorAll('a[href="privacy.html"]').forEach(a => a.target = '_top');
+      frame.srcdoc = html;
     }
 
-    frame.addEventListener('load', () => {
-      try {
-        const doc = frame.contentDocument;
-        if (!doc) return;
-
-        // Corre imediatamente e repete durante alguns segundos para apanhar
-        // qualquer conteúdo/listener criado pelo JavaScript do questionário.
-        removeAllSelectionLimits(doc);
-        let runs = 0;
-        const timer = setInterval(() => {
-          removeAllSelectionLimits(doc);
-          runs++;
-          if (runs >= 15) clearInterval(timer);
-        }, 200);
-
-        // Captura mudanças antes dos listeners antigos e impede que qualquer
-        // lógica de limite volte a desmarcar opções.
-        doc.addEventListener('change', event => {
-          const target = event.target;
-          if (target instanceof frame.contentWindow.HTMLInputElement &&
-              target.type === 'checkbox' &&
-              target.closest('[data-unlimited="true"]')) {
-            event.stopImmediatePropagation();
-          }
-        }, true);
-      } catch (e) {
-        console.error('Não foi possível remover os limites:', e);
-      }
+    loadSurvey().catch(err => {
+      console.error(err);
+      document.body.innerHTML = '<p style="font-family:system-ui;padding:24px">Não foi possível carregar o questionário. Atualiza a página e tenta novamente.</p>';
     });
   </script>
 </body>
