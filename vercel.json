@@ -1,6 +1,6 @@
 {
-  "rewrites": [
-    { "source": "/", "destination": "/survey.html" }
+  "redirects": [
+    { "source": "/", "destination": "/survey.html", "permanent": false }
   ],
   "headers": [
     {
@@ -12,10 +12,22 @@
       ]
     },
     {
+      "source": "/survey.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
+    {
       "source": "/dashboard.html",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
-        { "key": "Cache-Control", "value": "no-store" }
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
       ]
     }
   ]
